@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  dailyLogs DailyLog[]
+  goals     Goal[]
+}
+
+model DailyLog {
+  id            String   @id @default(uuid())
+  date          DateTime @default(now())
+  morningPlan   String?
+  eveningNote   String?
+  completed     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  areaRatings AreaRating[]
+}
+
+model AreaRating {
+  id    String @id @default(uuid())
+  area  String
+  score Int
+
+  logId    String
+  dailyLog DailyLog @relation(fields: [logId], references: [id])
+}
+
+model Goal {
+  id        String    @id @default(uuid())
+  area      String
+  title     String
+  dueDate   DateTime?
+  done      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
